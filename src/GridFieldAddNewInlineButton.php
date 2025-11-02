@@ -18,6 +18,7 @@ use SilverStripe\ORM\ManyManyThroughList;
 use SilverStripe\Model\ArrayData;
 use SilverStripe\View\Requirements;
 use Exception;
+use SilverStripe\Core\Validation\ValidationException;
 
 /**
  * Builds on the {@link GridFieldEditableColumns} component to allow creating new records.
@@ -217,7 +218,11 @@ class GridFieldAddNewInlineButton extends AbstractGridFieldComponent implements
                 $extra = array_intersect_key($form->getData() ?? [], (array) $list->getExtraFields());
             }
 
-            $item->write(false, false, false, true);
+            try {
+                $item->write(false, false, false, true);
+            } catch (ValidationException $e) {
+                continue;
+            }
 
             // Add non-through lists after the write. many_many_extraFields are added there too
             if (!($list instanceof ManyManyThroughList)) {
